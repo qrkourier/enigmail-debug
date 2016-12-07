@@ -122,6 +122,7 @@ MimeVerify.prototype = {
   window: null,
   inStream: null,
   sigFile: null,
+  dataFile: null,
   sigData: "",
   mimePartNumber: "",
 
@@ -516,7 +517,14 @@ MimeVerify.prototype = {
 
       // ensure all lines end with CRLF as specified in RFC 3156, section 5
       this.signedData = this.signedData.replace(/\r\n/g, "\n").replace(/\n/g, "\r\n");
-
+      // write the kept, signed data to a file to illustrate the resultant
+      // transformations of RFC 3156, etc...
+      this.dataFile = EnigmailFiles.getTempDirObj();
+      this.dataFile.append("signedData.out");
+      //if (this.dataFile) this.dataFile.remove(false);
+      this.dataFile.createUnique(this.dataFile.NORMAL_FILE_TYPE, 0x180);
+      EnigmailFiles.writeFileContents(this.dataFile, this.signedData, 0x180);
+      // proceed to pipe and verify
       pipe.write(this.signedData);
       if (this.closePipe) pipe.close();
     }
